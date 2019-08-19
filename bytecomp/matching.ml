@@ -1496,6 +1496,10 @@ let code_force_lazy_block =
   get_mod_field "CamlinternalLazy" "force_lazy_block"
 ;;
 
+let code_force =
+    get_mod_field "CamlinternalLazy" "force"
+;;
+
 (* inline_lazy_force inlines the beginning of the code of Lazy.force. When
    the value argument is tagged as:
    - forward, take field 0
@@ -1556,6 +1560,9 @@ let inline_lazy_force_switch arg loc =
                sw_failaction = Some varg }, loc ))))
 
 let inline_lazy_force arg loc =
+  if !Clflags.bs_only then
+    Lapply {ap_should_be_tailcall=false; ap_func = Lazy.force code_force; ap_inlined = Default_inline; ap_specialised = Default_specialise; ap_args = [arg]; ap_loc = loc}
+  else
   if !Clflags.native_code then
     (* Lswitch generates compact and efficient native code *)
     inline_lazy_force_switch arg loc

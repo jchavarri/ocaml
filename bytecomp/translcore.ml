@@ -1197,7 +1197,7 @@ and transl_exp0 e =
       | `Float -> 
           (* We don't need to wrap with Popaque: this forward
              block will never be shortcutted since it points to a float. *)
-          Lprim(Pmakeblock(Obj.forward_tag, Lambda.default_tag_info, Immutable, None),
+          Lprim(Pmakeblock(Obj.forward_tag, Lambda.Blk_lazy_forward, Immutable, None),
                 [transl_exp e], e.exp_loc)
       | `Identifier `Forward_value ->
          (* CR-someday mshinwell: Consider adding a new primitive
@@ -1207,7 +1207,7 @@ and transl_exp0 e =
             block doesn't really match what is going on here.  This
             value may subsequently turn into an immediate... *)
          Lprim (Popaque,
-                [Lprim(Pmakeblock(Obj.forward_tag, Lambda.default_tag_info, Immutable, None),
+                [Lprim(Pmakeblock(Obj.forward_tag, Lambda.Blk_lazy_forward, Immutable, None),
                        [transl_exp e], e.exp_loc)],
                 e.exp_loc)
       | `Identifier `Other ->
@@ -1218,7 +1218,7 @@ and transl_exp0 e =
                              attr = default_function_attribute;
                              loc = e.exp_loc;
                              body = transl_exp e} in
-          Lprim(Pmakeblock(Config.lazy_tag, Lambda.default_tag_info, Mutable, None), [fn], e.exp_loc)
+          Lprim(Pmakeblock(Config.lazy_tag, Lambda.Blk_lazy_general, Mutable, None), [fn], e.exp_loc)
       end
   | Texp_object (cs, meths) ->
       let cty = cs.cstr_type in
