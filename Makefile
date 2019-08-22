@@ -61,6 +61,7 @@ INCLUDES=-I utils -I parsing -I typing -I bytecomp -I middle_end \
 
 COMPFLAGS=-strict-sequence -principal -absname -w +a-4-9-41-42-44-45-48-40 \
 	  -warn-error A \
+	  -g \
           -bin-annot -safe-string -strict-formats $(INCLUDES)
 LINKFLAGS=
 
