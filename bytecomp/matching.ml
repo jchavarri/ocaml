@@ -1486,7 +1486,7 @@ let get_mod_field modname field =
       with Not_found ->
         fatal_error ("Primitive "^modname^"."^field^" not found.")
       in
-      Lprim(Pfield (p, Fld_na),
+      Lprim(Pfield (p, Fld_module field),
             [Lprim(Pgetglobal mod_ident, [], Location.none)],
             Location.none)
     with Not_found -> fatal_error ("Module "^modname^" unavailable.")
