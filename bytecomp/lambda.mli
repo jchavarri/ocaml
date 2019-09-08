@@ -282,6 +282,8 @@ type function_attribute = {
   stub: bool;
 }
 
+type switch_names = {consts: string array; blocks: string array}
+
 type lambda =
     Lvar of Ident.t
   | Lconst of structured_constant
@@ -327,7 +329,8 @@ and lambda_switch =
     sw_consts: (int * lambda) list;     (* Integer cases *)
     sw_numblocks: int;                  (* Number of tag block cases *)
     sw_blocks: (int * lambda) list;     (* Tag block cases *)
-    sw_failaction : lambda option}      (* Action to take if failure *)
+    sw_failaction : lambda option;      (* Action to take if failure *)
+    sw_names: switch_names option }
 and lambda_event =
   { lev_loc: Location.t;
     lev_kind: lambda_event_kind;

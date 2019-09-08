@@ -1447,7 +1447,7 @@ struct
   let make_isout h arg = Cop (Ccmpa Clt, [h ; arg], Debuginfo.none)
   let make_isin h arg = Cop (Ccmpa Cge, [h ; arg], Debuginfo.none)
   let make_if cond ifso ifnot = Cifthenelse (cond, ifso, ifnot)
-  let make_switch loc arg cases actions =
+  let make_switch loc arg cases actions _names =
     make_switch arg cases actions (Debuginfo.from_location loc)
   let bind arg body = bind "switcher" arg body
 
@@ -1532,7 +1532,7 @@ let transl_int_switch loc arg low high cases default = match cases with
           loc
           (low,high)
           a
-          (Array.of_list inters) store)
+          (Array.of_list inters) store None)
 
 
 (* Auxiliary functions for optimizing "let" of boxed numbers (floats and
@@ -2749,7 +2749,7 @@ and transl_switch loc env arg index cases = match Array.length cases with
               loc
               (0,n_index-1)
               a
-              (Array.of_list inters) store)
+              (Array.of_list inters) store None)
 
 and transl_letrec env bindings cont =
   let dbg = Debuginfo.none in

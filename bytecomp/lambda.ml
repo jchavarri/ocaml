@@ -264,6 +264,7 @@ type function_attribute = {
   is_a_functor: bool;
   stub: bool;
 }
+type switch_names = {consts: string array; blocks: string array}
 
 type lambda =
     Lvar of Ident.t
@@ -308,7 +309,8 @@ and lambda_switch =
     sw_consts: (int * lambda) list;
     sw_numblocks: int;
     sw_blocks: (int * lambda) list;
-    sw_failaction : lambda option}
+    sw_failaction : lambda option;
+    sw_names: switch_names option }
 
 and lambda_event =
   { lev_loc: Location.t;
@@ -681,6 +683,7 @@ let rec map f lam =
             sw_numblocks = sw.sw_numblocks;
             sw_blocks = List.map (fun (n, e) -> (n, map f e)) sw.sw_blocks;
             sw_failaction = Misc.may_map (map f) sw.sw_failaction;
+            sw_names = sw.sw_names
           },
           loc)
     | Lstringswitch (e, sw, default, loc) ->
