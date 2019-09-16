@@ -96,7 +96,7 @@ let read_ast (type a) (kind : a ast_kind) fn : a =
     let magic = magic_of_kind kind in
     let buffer = really_input_string ic (String.length magic) in
     assert(buffer = magic); (* already checked by apply_rewriter *)
-    Location.input_name := (input_value ic : string);
+    Location.set_input_name @@ (input_value ic : string);
     let ast = (input_value ic : a) in
     close_in ic;
     Misc.remove_file fn;
@@ -174,7 +174,7 @@ let file_aux ppf ~tool_name inputfile (type a) parse_fun invariant_fun
           (* FIXME make this a proper warning *)
           fprintf ppf "@[Warning: %s@]@."
             "option -unsafe used with a preprocessor returning a syntax tree";
-        Location.input_name := (input_value ic : string);
+        Location.set_input_name @@ (input_value ic : string);
         (input_value ic : a)
       end else begin
         seek_in ic 0;
@@ -210,7 +210,7 @@ let () =
     )
 
 let parse_file ~tool_name invariant_fun apply_hooks kind ppf sourcefile =
-  Location.input_name := sourcefile;
+  Location.set_input_name  sourcefile;
   let inputfile = preprocess sourcefile in
   let ast =
     try file_aux ppf ~tool_name inputfile (parse kind) invariant_fun kind

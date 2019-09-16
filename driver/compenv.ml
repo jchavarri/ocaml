@@ -576,7 +576,7 @@ let process_action
       if !make_package then objfiles := (opref ^ ".cmi") :: !objfiles
   | ProcessCFile name ->
       readenv ppf (Before_compile name);
-      Location.input_name := name;
+      Location.set_input_name  name;
       if Ccomp.compile_file name <> 0 then exit 2;
       ccobjs := c_object_of_filename name :: !ccobjs
   | ProcessObjects names ->
