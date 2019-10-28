@@ -243,4 +243,5 @@ val bs_only : bool ref (* set true on bs top*)
 val bs_gentype : string option ref
 val no_assert_false : bool ref
 val bs_quiet : bool ref 
+val dump_location : bool ref
 #end

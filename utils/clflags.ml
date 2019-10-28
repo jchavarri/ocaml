@@ -419,4 +419,5 @@ let bs_only = ref false
 let bs_gentype = ref None
 let no_assert_false = ref false
 let bs_quiet = ref false
+let dump_location = ref true
 #end

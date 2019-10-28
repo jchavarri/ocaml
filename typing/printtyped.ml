@@ -27,8 +27,10 @@ let fmt_position f l =
 ;;
 
 let fmt_location f loc =
+  if !Clflags.dump_location then (
   fprintf f "(%a..%a)" fmt_position loc.loc_start fmt_position loc.loc_end;
   if loc.loc_ghost then fprintf f " ghost";
+  )
 ;;
 
 let rec fmt_longident_aux f x =
