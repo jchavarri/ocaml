@@ -63,7 +63,7 @@ let transl_label l = share (Const_immstring l)
 let transl_meth_list lst =
   if lst = [] then Lconst (Const_pointer (0, Lambda.Pt_na)) else
   share (Const_block
-            (0, Lambda.Blk_na, List.map (fun lab -> Const_immstring lab) lst))
+            (0, Lambda.Blk_array, List.map (fun lab -> Const_immstring lab) lst))
 
 let set_inst_var obj id expr =
   Lprim(Psetfield_computed (Typeopt.maybe_pointer expr, Assignment),
@@ -490,7 +490,7 @@ let transl_class_rebind cl vf =
     Strict, Pgenval, new_init, lfunction [obj_init] obj_init',
     Llet(
     Alias, Pgenval, cla, transl_normal_path path,
-    Lprim(Pmakeblock(0, Lambda.default_tag_info, Immutable, None),
+    Lprim(Pmakeblock(0, Lambda.Blk_class, Immutable, None),
           [mkappl(Lvar new_init, [lfield cla 0]);
            lfunction [table]
              (Llet(Strict, Pgenval, env_init,
@@ -757,12 +757,12 @@ let transl_class ids cl_id pub_meths cl vflag =
       Strict, Pgenval, env_init, mkappl (Lvar class_init, [Lvar table]),
       Lsequence(
       mkappl (oo_prim "init_class", [Lvar table]),
-      Lprim(Pmakeblock(0, Lambda.default_tag_info, Immutable, None),
+      Lprim(Pmakeblock(0, Lambda.Blk_class, Immutable, None),
             [mkappl (Lvar env_init, [lambda_unit]);
              Lvar class_init; Lvar env_init; lambda_unit],
             Location.none))))
   and lbody_virt lenvs =
-    Lprim(Pmakeblock(0, Lambda.default_tag_info, Immutable, None),
+    Lprim(Pmakeblock(0, Lambda.Blk_class, Immutable, None),
           [lambda_unit; Lfunction{kind = Curried;
                                   attr = default_function_attribute;
                                   loc = Location.none;
@@ -784,22 +784,22 @@ let transl_class ids cl_id pub_meths cl vflag =
   let lenv =
     let menv =
       if !new_ids_meths = [] then lambda_unit else
-      Lprim(Pmakeblock(0, Lambda.default_tag_info, Immutable, None),
+      Lprim(Pmakeblock(0, Lambda.Blk_array, Immutable, None),
             List.map (fun id -> Lvar id) !new_ids_meths,
             Location.none) in
     if !new_ids_init = [] then menv else
-    Lprim(Pmakeblock(0, Lambda.default_tag_info, Immutable, None),
+    Lprim(Pmakeblock(0, Lambda.Blk_array, Immutable, None),
           menv :: List.map (fun id -> Lvar id) !new_ids_init,
           Location.none)
   and linh_envs =
     List.map
-      (fun (_, p) -> Lprim(Pfield (3, Fld_na), [transl_normal_path p], Location.none))
+      (fun (_, p) -> Lprim(Pfield (3, Fld_tuple), [transl_normal_path p], Location.none))
       (List.rev inh_init)
   in
   let make_envs lam =
     Llet(StrictOpt, Pgenval, envs,
          (if linh_envs = [] then lenv else
-         Lprim(Pmakeblock(0, Lambda.default_tag_info, Immutable, None),
+         Lprim(Pmakeblock(0, Lambda.Blk_array, Immutable, None),
                lenv :: linh_envs, Location.none)),
          lam)
   and def_ids cla lam =
@@ -812,7 +812,7 @@ let transl_class ids cl_id pub_meths cl vflag =
       (fun (_,path) -> List.mem (Path.head path) new_ids) inh_init
   in
   let inh_keys =
-    List.map (fun (_,p) -> Lprim(Pfield (1, Fld_na), [transl_normal_path p],
+    List.map (fun (_,p) -> Lprim(Pfield (1, Fld_tuple), [transl_normal_path p],
                                  Location.none))
       inh_paths
   in
@@ -826,7 +826,7 @@ let transl_class ids cl_id pub_meths cl vflag =
     if inh_keys = [] then Llet(Alias, Pgenval, cached, Lvar tables, lam) else
     Llet(Strict, Pgenval, cached,
          mkappl (oo_prim "lookup_tables",
-                [Lvar tables; Lprim(Pmakeblock(0, Lambda.default_tag_info, Immutable, None),
+                [Lvar tables; Lprim(Pmakeblock(0, Lambda.Blk_array, Immutable, None),
                                     inh_keys, Location.none)]),
          lam)
   and lset cached i lam =
@@ -862,7 +862,7 @@ let transl_class ids cl_id pub_meths cl vflag =
   Lsequence(lcheck_cache,
   make_envs (
   if ids = [] then mkappl (lfield cached 0, [lenvs]) else
-  Lprim(Pmakeblock(0, Lambda.default_tag_info, Immutable, None),
+  Lprim(Pmakeblock(0, Lambda.Blk_class, Immutable, None),
         (if concrete then
           [mkappl (lfield cached 0, [lenvs]);
            lfield cached 1;
