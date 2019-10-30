@@ -72,11 +72,16 @@ type field_dbg_info =
   | Fld_record_inline of string 
   | Fld_record_extension of string 
   | Fld_tuple
+
+val ref_field_info : field_dbg_info   
+
 type set_field_dbg_info = 
   | Fld_set_na
   | Fld_record_set of string 
   | Fld_record_inline_set of string  
   | Fld_record_extension_set of string
+
+val ref_field_set_info : set_field_dbg_info    
 
 type immediate_or_pointer =
   | Immediate
