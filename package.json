@@ -8,7 +8,49 @@
       "make -j world.opt"
     ],
     "install": [
-      "make install"
+      "make install",
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'utils'}",
+        "#{self.install / 'utils'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'parsing'}",
+        "#{self.install / 'parsing'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'typing'}",
+        "#{self.install / 'typing'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'bytecomp'}",
+        "#{self.install / 'bytecomp'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'driver'}",
+        "#{self.install / 'driver'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'tools'}",
+        "#{self.install / 'tools'}"
+      ]
     ],
     "buildsInSource": true,
     "exportedEnv": {
