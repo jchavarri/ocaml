@@ -497,16 +497,19 @@ and transl_struct loc fields cc rootpath str =
 
 and transl_structure loc fields cc rootpath final_env = function
     [] ->
+      let is_top_root_path = is_top rootpath in 
       let body, size =
         match cc with
-          Tcoerce_none ->
-            let fields = List.rev fields in 
-            let field_names = List.map (fun id -> id.Ident.name) fields in 
-            Lprim(Pmakeblock(0, Lambda.Blk_module field_names, Immutable, None),
-                (List.fold_right (fun id acc -> begin
-                      (if is_top rootpath then 
+          Tcoerce_none ->            
+            let block_fields = 
+                (List.fold_left (fun acc id  -> begin
+                      (if is_top_root_path then 
                          export_identifiers :=  id :: !export_identifiers);
-                      (Lvar id :: acc) end) fields [])  , loc),
+                      (Lvar id :: acc) end) [] fields ) in 
+            Lprim(Pmakeblock(0, 
+              (if is_top_root_path then Blk_module_export !export_identifiers else 
+                Blk_module (List.rev_map (fun id -> id.Ident.name) fields)), Immutable, None),
+              block_fields, loc),
               List.length fields
         | Tcoerce_structure(pos_cc_list, id_pos_list, runtime_fields) ->
                 (* Do not ignore id_pos_list ! *)
@@ -515,7 +518,7 @@ and transl_structure loc fields cc rootpath final_env = function
               fields;
             Format.eprintf "@]@.";*)
             assert (List.length runtime_fields = List.length pos_cc_list);
-            let v = Array.of_list (List.rev fields) in
+            let v = Misc.array_of_list_rev fields in
             let get_field pos = Lvar v.(pos)
             and ids = List.fold_right IdentSet.add fields IdentSet.empty in
             let get_field_name _name = get_field in 
@@ -533,7 +536,7 @@ and transl_structure loc fields cc rootpath final_env = function
                  end)
               pos_cc_list [] in             
             let lam =
-              Lprim(Pmakeblock(0, Blk_module runtime_fields, Immutable, None), 
+              Lprim(Pmakeblock(0, (if is_top_root_path then Blk_module_export !export_identifiers else Blk_module runtime_fields), Immutable, None), 
                    result, loc)
             and id_pos_list =
               List.filter (fun (id,_,_) -> not (IdentSet.mem id ids))
