@@ -4,7 +4,7 @@
   "description": "BuckleScript's OCaml Compiler as an npm Package",
   "esy": {
     "build": [
-      "./esy-configure -no-cfi -prefix $cur__target",
+      "./esy-configure -no-cfi -prefix #{self.install}",
       "./esy-build",
       [
         "cp",
