@@ -1034,11 +1034,11 @@ and transl_exp0 e =
       let targ = transl_exp arg in
       begin match lbl.lbl_repres with
           Record_regular -> 
-          Lprim (Pfield (lbl.lbl_pos, Fld_record lbl.lbl_name), [targ], e.exp_loc) 
+          Lprim (Pfield (lbl.lbl_pos, !Lambda.fld_record lbl), [targ], e.exp_loc) 
         | Record_inlined _ ->
           Lprim (Pfield (lbl.lbl_pos, Fld_record_inline lbl.lbl_name), [targ], e.exp_loc)
         | Record_unboxed _ -> targ
-        | Record_float -> Lprim (Pfloatfield (lbl.lbl_pos, Fld_record lbl.lbl_name), [targ], e.exp_loc)
+        | Record_float -> Lprim (Pfloatfield (lbl.lbl_pos, !Lambda.fld_record lbl), [targ], e.exp_loc)
         | Record_extension ->
           Lprim (Pfield (lbl.lbl_pos + 1, Fld_record_extension lbl.lbl_name), [targ], e.exp_loc) 
       end
@@ -1046,11 +1046,11 @@ and transl_exp0 e =
       let access =
         match lbl.lbl_repres with
           Record_regular -> 
-          Psetfield(lbl.lbl_pos, maybe_pointer newval, Assignment, Fld_record_set lbl.lbl_name)
+          Psetfield(lbl.lbl_pos, maybe_pointer newval, Assignment, !Lambda.fld_record_set lbl)
         | Record_inlined _ -> 
           Psetfield(lbl.lbl_pos, maybe_pointer newval, Assignment, Fld_record_inline_set lbl.lbl_name)
         | Record_unboxed _ -> assert false
-        | Record_float -> Psetfloatfield (lbl.lbl_pos, Assignment, Fld_record_set lbl.lbl_name)
+        | Record_float -> Psetfloatfield (lbl.lbl_pos, Assignment, !Lambda.fld_record_set lbl)
         | Record_extension -> 
           Psetfield (lbl.lbl_pos + 1, maybe_pointer newval, Assignment, Fld_record_extension_set lbl.lbl_name)
       in
@@ -1440,11 +1440,11 @@ and transl_record loc env fields repres opt_init_expr =
                let field_kind = value_kind env typ in
                let access =
                  match repres with
-                   Record_regular ->   Pfield (i, Fld_record lbl.lbl_name) 
+                   Record_regular ->   Pfield (i, !Lambda.fld_record lbl) 
                  | Record_inlined _ -> Pfield (i, Fld_record_inline lbl.lbl_name) 
                  | Record_unboxed _ -> assert false
                  | Record_extension -> Pfield (i + 1, Fld_record_extension lbl.lbl_name) 
-                 | Record_float -> Pfloatfield (i, Fld_record lbl.lbl_name) in
+                 | Record_float -> Pfloatfield (i, !Lambda.fld_record lbl) in
                Lprim(access, [Lvar init_id], loc), field_kind
            | Overridden (_lid, expr) ->
                let field_kind = value_kind expr.exp_env expr.exp_type in
@@ -1456,17 +1456,16 @@ and transl_record loc env fields repres opt_init_expr =
       if Array.exists (fun (lbl, _) -> lbl.lbl_mut = Mutable) fields
       then Mutable
       else Immutable in
-    let all_labels_info = fields |> Array.map (fun (x,_) -> x.Types.lbl_name) in    
     let lam =
       try
         if mut = Mutable then raise Not_constant;
         let cl = List.map extract_constant ll in
         match repres with
-        | Record_regular -> Lconst(Const_block(0, Lambda.Blk_record all_labels_info, cl))
-        | Record_inlined {tag;name;num_nonconsts} -> Lconst(Const_block(tag, Lambda.Blk_record_inlined (all_labels_info,name,num_nonconsts), cl))
+        | Record_regular -> Lconst(Const_block(0, !Lambda.blk_record fields, cl))
+        | Record_inlined {tag;name;num_nonconsts} -> Lconst(Const_block(tag, !Lambda.blk_record_inlined fields name num_nonconsts, cl))
         | Record_unboxed _ -> Lconst(match cl with [v] -> v | _ -> assert false)
         | Record_float ->
-            if !Clflags.bs_only then Lconst(Const_block(0, Lambda.Blk_record all_labels_info, cl))
+            if !Clflags.bs_only then Lconst(Const_block(0, !Lambda.blk_record fields, cl))
             else
             Lconst(Const_float_array(List.map extract_float cl))
         | Record_extension ->
@@ -1474,12 +1473,12 @@ and transl_record loc env fields repres opt_init_expr =
       with Not_constant ->
         match repres with
           Record_regular ->
-            Lprim(Pmakeblock(0, Lambda.Blk_record all_labels_info, mut, Some shape), ll, loc)
+            Lprim(Pmakeblock(0, !Lambda.blk_record fields, mut, Some shape), ll, loc)
         | Record_inlined {tag;name; num_nonconsts} ->
-            Lprim(Pmakeblock(tag, Lambda.Blk_record_inlined (all_labels_info, name, num_nonconsts), mut, Some shape), ll, loc)
+            Lprim(Pmakeblock(tag, !Lambda.blk_record_inlined fields name num_nonconsts, mut, Some shape), ll, loc)
         | Record_unboxed _ -> (match ll with [v] -> v | _ -> assert false)
         | Record_float ->
-            if !Clflags.bs_only then Lprim(Pmakeblock(0, Lambda.Blk_record all_labels_info, mut, Some shape), ll, loc)
+            if !Clflags.bs_only then Lprim(Pmakeblock(0, !Lambda.blk_record fields, mut, Some shape), ll, loc)
             else
             Lprim(Pmakearray (Pfloatarray, mut), ll, loc)
         | Record_extension ->
@@ -1490,7 +1489,7 @@ and transl_record loc env fields repres opt_init_expr =
               | _ -> assert false
             in
             let slot = transl_extension_path env path in
-            Lprim(Pmakeblock(0, Lambda.Blk_record_ext all_labels_info, mut, Some (Pgenval :: shape)), slot :: ll, loc) 
+            Lprim(Pmakeblock(0, !Lambda.blk_record_ext fields, mut, Some (Pgenval :: shape)), slot :: ll, loc) 
     in
     begin match opt_init_expr with
       None -> lam
@@ -1508,11 +1507,11 @@ and transl_record loc env fields repres opt_init_expr =
           let upd =
             match repres with
               Record_regular -> 
-              Psetfield(lbl.lbl_pos, maybe_pointer expr, Assignment, Fld_record_set lbl.lbl_name)
+              Psetfield(lbl.lbl_pos, maybe_pointer expr, Assignment, !Lambda.fld_record_set lbl)
             | Record_inlined _ -> 
                 Psetfield(lbl.lbl_pos, maybe_pointer expr, Assignment, Fld_record_inline_set lbl.lbl_name)
             | Record_unboxed _ -> assert false
-            | Record_float -> Psetfloatfield (lbl.lbl_pos, Assignment, Fld_record_set lbl.lbl_name)
+            | Record_float -> Psetfloatfield (lbl.lbl_pos, Assignment, !Lambda.fld_record_set lbl)
             | Record_extension -> 
                 Psetfield(lbl.lbl_pos + 1, maybe_pointer expr, Assignment, Fld_record_extension_set lbl.lbl_name)
           in

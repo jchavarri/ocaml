@@ -247,6 +247,12 @@ and compare_records ~loc env params1 params2 n
           loc
           ld1.ld_attributes ld2.ld_attributes
           (Ident.name ld1.ld_id);
+        let field_mismatch = !Builtin_attributes.check_bs_attributes_inclusion  
+          ld1.ld_attributes ld2.ld_attributes
+          (Ident.name ld1.ld_id) in 
+        match field_mismatch with
+        | Some (a,b) -> [Field_names (n,a,b)]
+        | None ->
         if Ctype.equal env true (ld1.ld_type::params1)(ld2.ld_type::params2)
         then (* add arguments to the parameters, cf. PR#7378 *)
           compare_records ~loc env

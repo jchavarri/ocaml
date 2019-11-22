@@ -42,6 +42,10 @@ val check_deprecated_mutable_inclusion:
   def:Location.t -> use:Location.t -> Location.t -> Parsetree.attributes ->
   Parsetree.attributes -> string -> unit
 
+val check_bs_attributes_inclusion:
+  (Parsetree.attributes ->
+  Parsetree.attributes -> string -> (string*string) option ) ref
+
 val error_of_extension: Parsetree.extension -> Location.error
 
 val warning_attribute: ?ppwarning:bool -> Parsetree.attribute -> unit
