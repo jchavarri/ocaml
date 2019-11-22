@@ -140,7 +140,7 @@ type type_mismatch =
   | Field_type of Ident.t
   | Field_mutable of Ident.t
   | Field_arity of Ident.t
-  | Field_names of int * Ident.t * Ident.t
+  | Field_names of int * string * string
   | Field_missing of bool * Ident.t
   | Record_representation of bool   (* true means second one is unboxed float *)
   | Unboxed_representation of bool  (* true means second one is unboxed *)
@@ -163,7 +163,7 @@ let report_type_mismatch0 first second decl ppf err =
       pr "The arities for field %s differ" (Ident.name s)
   | Field_names (n, name1, name2) ->
       pr "Fields number %i have different names, %s and %s"
-        n (Ident.name name1) (Ident.name name2)
+        n name1 name2
   | Field_missing (b, s) ->
       pr "The field %s is only present in %s %s"
         (Ident.name s) (if b then second else first) decl
@@ -204,7 +204,7 @@ and compare_variants ~loc env params1 params2 n
   | c::_, [] -> [Field_missing (false, c.Types.cd_id)]
   | cd1::rem1, cd2::rem2 ->
       if Ident.name cd1.cd_id <> Ident.name cd2.cd_id then
-        [Field_names (n, cd1.cd_id, cd2.cd_id)]
+        [Field_names (n, cd1.cd_id.name, cd2.cd_id.name)]
       else begin
         Builtin_attributes.check_deprecated_inclusion
           ~def:cd1.cd_loc
@@ -239,7 +239,7 @@ and compare_records ~loc env params1 params2 n
   | l::_, [] -> [Field_missing (false, l.Types.ld_id)]
   | ld1::rem1, ld2::rem2 ->
       if Ident.name ld1.ld_id <> Ident.name ld2.ld_id
-      then [Field_names (n, ld1.ld_id, ld2.ld_id)]
+      then [Field_names (n, ld1.ld_id.name, ld2.ld_id.name)]
       else if ld1.ld_mutable <> ld2.ld_mutable then [Field_mutable ld1.ld_id] else begin
         Builtin_attributes.check_deprecated_mutable_inclusion
           ~def:ld1.ld_loc
