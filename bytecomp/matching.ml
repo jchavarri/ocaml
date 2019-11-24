@@ -1405,7 +1405,7 @@ let make_variant_matching_nonconst p lab def ctx = function
       let def = make_default (matcher_variant_nonconst lab) def
       and ctx = filter_ctx p ctx in
       {pm=
-        {cases = []; args = (Lprim(Pfield (1, Fld_na), [arg], p.pat_loc), Alias) :: argl;
+        {cases = []; args = (Lprim(Pfield (1, Fld_poly_var_content), [arg], p.pat_loc), Alias) :: argl;
           default=def} ;
         ctx=ctx ;
         pat = normalize_pat p}
@@ -1609,7 +1609,7 @@ let make_tuple_matching loc arity def = function
       let rec make_args pos =
         if pos >= arity
         then argl
-        else (Lprim(Pfield (pos, Fld_na (* TODO: tuple *)), [arg], loc), Alias) :: make_args (pos + 1) in
+        else (Lprim(Pfield (pos, Fld_tuple), [arg], loc), Alias) :: make_args (pos + 1) in
       {cases = []; args = make_args 0 ;
         default=make_default (matcher_tuple arity) def}
 
@@ -2445,7 +2445,7 @@ let call_switcher_variant_constant loc fail arg int_lambda_list names =
 
 let call_switcher_variant_constr loc fail arg int_lambda_list names =
   let v = Ident.create "variant" in
-  Llet(Alias, Pgenval, v, Lprim(Pfield (0, Fld_na), [arg], loc),
+  Llet(Alias, Pgenval, v, Lprim(Pfield (0, Fld_poly_var_tag), [arg], loc),
        call_switcher loc
          fail (Lvar v) min_int max_int int_lambda_list names)
 

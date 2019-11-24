@@ -61,7 +61,7 @@ let lfield v i = Lprim(Pfield (i, Fld_na), [Lvar v], Location.none)
 let transl_label l = share (Const_immstring l)
 
 let transl_meth_list lst =
-  if lst = [] then Lconst (Const_pointer (0, Lambda.Pt_na)) else
+  if lst = [] then Lconst (Const_pointer (0, Pt_na)) else
   share (Const_block
             (0, Lambda.Blk_array, List.map (fun lab -> Const_immstring lab) lst))
 
@@ -272,8 +272,8 @@ let rec build_class_init cla cstr super inh_init cl_init msubst top cl =
           let lpath = transl_class_path ~loc:cl.cl_loc cl.cl_env path in
           (inh_init,
            Llet (Strict, Pgenval, obj_init,
-                 mkappl(Lprim(Pfield (1, Fld_na), [lpath], Location.none), Lvar cla ::
-                        if top then [Lprim(Pfield (3, Fld_na), [lpath], Location.none)]
+                 mkappl(Lprim(Pfield (1, Fld_tuple), [lpath], Location.none), Lvar cla ::
+                        if top then [Lprim(Pfield (3, Fld_tuple), [lpath], Location.none)]
                         else []),
                  bind_super cla super cl_init))
       | _ ->
@@ -529,7 +529,7 @@ let rec builtin_meths self env env2 body =
     | Lprim(Parrayrefu _, [Lvar s; Lvar n], _) when List.mem s self ->
         "var", [Lvar n]
     | Lprim(Pfield (n,_), [Lvar e], _) when Ident.same e env ->
-        "env", [Lvar env2; Lconst(Const_pointer (n, Lambda.Pt_na))]
+        "env", [Lvar env2; Lconst(Const_pointer (n, Pt_na))]
     | Lsend(Self, met, Lvar s, [], _) when List.mem s self ->
         "meth", [met]
     | _ -> raise Not_found
@@ -600,7 +600,7 @@ module M = struct
     | "send_env"   -> SendEnv
     | "send_meth"  -> SendMeth
     | _ -> assert false
-    in Lconst(Const_pointer(Obj.magic tag, Lambda.Pt_na)) :: args
+    in Lconst(Const_pointer(Obj.magic tag, Pt_na)) :: args
 end
 open M
 

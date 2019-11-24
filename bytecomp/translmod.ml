@@ -464,7 +464,7 @@ and transl_module cc rootpath mexp =
     mexp.mod_attributes;
   let loc = mexp.mod_loc in
   match mexp.mod_type with
-    Mty_alias (Mta_absent, _) -> apply_coercion loc Alias cc lambda_unit
+    Mty_alias (Mta_absent, _) -> apply_coercion loc Alias cc lambda_module_alias
   | _ ->
       match mexp.mod_desc with
         Tmod_ident (path,_) ->

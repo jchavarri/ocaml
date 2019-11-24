@@ -78,7 +78,9 @@ type field_dbg_info =
   | Fld_record_inline of string   
   | Fld_record_extension of string 
   | Fld_tuple  
-
+  | Fld_poly_var_tag
+  | Fld_poly_var_content
+  
 let fld_record = ref (fun (lbl : Types.label_description) ->
   Fld_record {name = lbl.lbl_name; mutable_flag = Mutable})
 
@@ -366,6 +368,7 @@ let const_unit = Const_pointer(0, Pt_na)
 
 let lambda_assert_false = Lconst (Const_pointer(0, Pt_constructor {name = "assert false"; cstrs = (1,0)}))  
 
+let lambda_module_alias = Lconst (Const_pointer(0, Pt_module_alias)) 
 
 let lambda_unit = Lconst const_unit
 
