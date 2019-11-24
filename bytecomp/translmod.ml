@@ -233,7 +233,7 @@ let undefined_location loc =
                      [Const_base(Const_string (fname, None));
                       Const_base(Const_int line);
                       Const_base(Const_int char)]))
-
+let cstrs = (3,2) 
 let init_shape modl =
   let add_name x id =
     if !Clflags.bs_only then
@@ -246,7 +246,7 @@ let init_shape modl =
       Mty_ident _ ->
         raise Not_found
     | Mty_alias _ ->
-        Const_block (1, value_tag_info, [Const_pointer (0, Lambda.Pt_module_alias)])
+        Const_block (1, value_tag_info, [Const_pointer (0, Pt_module_alias)])
     | Mty_signature sg ->
         Const_block(0, module_tag_info, [Const_block(0, Blk_array, init_shape_struct env sg)])
     | Mty_functor _ ->
@@ -258,9 +258,9 @@ let init_shape modl =
         let init_v =
           match Ctype.expand_head env ty with
             {desc = Tarrow(_,_,_,_)} ->
-              Const_pointer (0, Lambda.default_pointer_info) (* camlinternalMod.Function *)
+              Const_pointer (0, Pt_constructor{name = "Function"; cstrs})
           | {desc = Tconstr(p, _, _)} when Path.same p Predef.path_lazy_t ->
-              Const_pointer (1, Lambda.default_pointer_info) (* camlinternalMod.Lazy *)
+              Const_pointer (1, Pt_constructor{name = "Lazy"; cstrs}) 
           | _ -> raise Not_found in
         (add_name init_v id) :: init_shape_struct env rem
     | Sig_value(_, {val_kind=Val_prim _}) :: rem ->
@@ -278,7 +278,7 @@ let init_shape modl =
     | Sig_modtype(id, minfo) :: rem ->
         init_shape_struct (Env.add_modtype id minfo env) rem
     | Sig_class (id,_,_) :: rem ->
-        (add_name (Const_pointer (2, Lambda.default_pointer_info)) id) (* camlinternalMod.Class *)
+        (add_name (Const_pointer (2, Pt_constructor{name = "Class";cstrs})) id)
         :: init_shape_struct env rem
     | Sig_class_type _ :: rem ->
         init_shape_struct env rem

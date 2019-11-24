@@ -373,7 +373,7 @@ let rec build_class_init cla cstr super inh_init cl_init msubst top cl =
           (inh_init,
            Llet (Strict, Pgenval, inh,
                  mkappl(oo_prim "inherits", narrow_args @
-                        [lpath; Lconst(Const_pointer((if top then 1 else 0),Lambda.Pt_na))]),
+                        [lpath; Lconst(Const_pointer((if top then 1 else 0),Pt_builtin_boolean))]),
                  Llet(StrictOpt, Pgenval, obj_init, lfield inh 0, cl_init)))
       | _ ->
           let core cl_init =

@@ -132,14 +132,14 @@ type is_safe =
   | Unsafe
 
 type pointer_info = 
-  | Pt_constructor of string 
-  | Pt_variant of string
+  | Pt_constructor of {name : string; cstrs : int * int} 
+  | Pt_variant of {name : string}
   | Pt_module_alias 
   | Pt_builtin_boolean
   | Pt_shape_none   
   | Pt_na  
 
-val default_pointer_info : pointer_info  
+
 
 type primitive =
   | Pidentity

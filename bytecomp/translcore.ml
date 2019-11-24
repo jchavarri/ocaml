@@ -982,7 +982,7 @@ and transl_exp0 e =
           | Longident.Lident "None"
              when Datarepr.constructor_has_optional_shape cstr
             -> Pt_shape_none
-          | _ -> (Lambda.Pt_constructor cstr.cstr_name)        
+          | _ -> (Lambda.Pt_constructor {name = cstr.cstr_name; cstrs = cstr.cstr_consts,cstr.cstr_nonconsts})        
           ))
       | Cstr_unboxed ->
           (match ll with [v] -> v | _ -> assert false)
@@ -1016,7 +1016,7 @@ and transl_exp0 e =
   | Texp_variant(l, arg) ->
       let tag = Btype.hash_variant l in
       begin match arg with
-        None -> Lconst(Const_pointer (tag, Lambda.Pt_variant l))
+        None -> Lconst(Const_pointer (tag, Pt_variant {name = l}))
       | Some arg ->
           let lam = transl_exp arg in
           let tag_info = Lambda.Blk_variant l in 
