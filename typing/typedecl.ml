@@ -222,13 +222,18 @@ let make_params env params =
 
 let transl_labels env closed lbls =
   assert (lbls <> []);
+  if !Clflags.bs_only then 
+    match !Builtin_attributes.check_duplicated_labels lbls with 
+    | None -> ()
+    | Some {loc;txt=name} -> raise (Error(loc,Duplicate_label name))
+  else (
   let all_labels = ref StringSet.empty in
   List.iter
     (fun {pld_name = {txt=name; loc}} ->
        if StringSet.mem name !all_labels then
          raise(Error(loc, Duplicate_label name));
        all_labels := StringSet.add name !all_labels)
-    lbls;
+    lbls);
   let mk {pld_name=name;pld_mutable=mut;pld_type=arg;pld_loc=loc;
           pld_attributes=attrs} =
     Builtin_attributes.warning_scope attrs

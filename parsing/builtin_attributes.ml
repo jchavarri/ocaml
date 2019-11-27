@@ -110,6 +110,10 @@ let check_bs_attributes_inclusion =
       None
     )  
 
+let check_duplicated_labels = ref (fun _lbls -> 
+  failwith "check_duplicated_label not implemented"
+)
+
 let rec deprecated_of_sig = function
   | {psig_desc = Psig_attribute a} :: tl ->
       begin match deprecated_of_attrs [a] with
