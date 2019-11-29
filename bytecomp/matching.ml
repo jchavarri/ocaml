@@ -1486,7 +1486,7 @@ let get_mod_field modname field =
       with Not_found ->
         fatal_error ("Primitive "^modname^"."^field^" not found.")
       in
-      Lprim(Pfield (p, Fld_module field),
+      Lprim(Pfield (p, Fld_module {name = field}),
             [Lprim(Pgetglobal mod_ident, [], Location.none)],
             Location.none)
     with Not_found -> fatal_error ("Module "^modname^" unavailable.")
@@ -1657,10 +1657,10 @@ let make_record_matching loc all_labels def = function
             | Record_regular  -> 
               Lprim (Pfield (lbl.lbl_pos, !Lambda.fld_record lbl), [arg], loc) 
             | Record_inlined _ ->
-              Lprim (Pfield (lbl.lbl_pos, Fld_record_inline lbl.lbl_name), [arg], loc)
+              Lprim (Pfield (lbl.lbl_pos, Fld_record_inline {name = lbl.lbl_name}), [arg], loc)
             | Record_unboxed _ -> arg
             | Record_float -> Lprim (Pfloatfield (lbl.lbl_pos, !Lambda.fld_record lbl), [arg], loc)
-            | Record_extension -> Lprim (Pfield (lbl.lbl_pos + 1, Fld_record_extension lbl.lbl_name), [arg], loc) 
+            | Record_extension -> Lprim (Pfield (lbl.lbl_pos + 1, Fld_record_extension {name = lbl.lbl_name}), [arg], loc) 
           in
           let str =
             match lbl.lbl_mut with
@@ -2359,7 +2359,7 @@ let combine_constructor sw_names loc arg ex_pat cstr partial ctx def
                 nonconsts
                 default
             in
-              Llet(Alias, Pgenval,tag, Lprim(Pfield (0, Fld_na), [arg], loc), tests)
+              Llet(Alias, Pgenval,tag, Lprim(Pfield (0, Fld_extension_slot), [arg], loc), tests)
       in
         List.fold_right
           (fun (path, act) rem ->
@@ -2957,14 +2957,14 @@ let compile_matching repr handler_fun arg pat_act_list partial =
 let partial_function loc () =
   (* [Location.get_pos_info] is too expensive *)
   let (fname, line, char) = Location.get_pos_info loc.Location.loc_start in
-#if undefined BS_NO_COMPILER_PATCH then     
+#if true then     
   let fname = 
     Filename.basename fname
   in   
 #end    
-  Lprim(Praise Raise_regular, [Lprim(Pmakeblock(0, Lambda.Blk_extension, Immutable, None),
+  Lprim(Praise Raise_regular, [Lprim(Pmakeblock(0, Blk_extension, Immutable, None),
           [transl_normal_path Predef.path_match_failure;
-           Lconst(Const_block(0, Lambda.Blk_tuple,
+           Lconst(Const_block(0, Blk_tuple,
               [Const_base(Const_string (fname, None));
                Const_base(Const_int line);
                Const_base(Const_int char)]))], loc)], loc)

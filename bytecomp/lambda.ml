@@ -38,7 +38,7 @@ type tag_info =
   | Blk_constructor of string * int (* Number of non-const constructors*)
   | Blk_tuple
   | Blk_array
-  | Blk_variant of string 
+  | Blk_poly_var of string 
   | Blk_record of string array (* when its empty means we dont get such information *)
   | Blk_module of string list
   | Blk_module_export of Ident.t list
@@ -74,13 +74,13 @@ let ref_tag_info : tag_info = Blk_record [| "contents" |]
 type field_dbg_info = 
   | Fld_na
   | Fld_record of {name : string; mutable_flag : Asttypes.mutable_flag}
-  | Fld_module of string     
-  | Fld_record_inline of string   
-  | Fld_record_extension of string 
+  | Fld_module of {name : string }
+  | Fld_record_inline of { name : string}   
+  | Fld_record_extension of {name : string}
   | Fld_tuple  
   | Fld_poly_var_tag
   | Fld_poly_var_content
-  
+  | Fld_extension_slot 
 let fld_record = ref (fun (lbl : Types.label_description) ->
   Fld_record {name = lbl.lbl_name; mutable_flag = Mutable})
 
@@ -613,7 +613,7 @@ let rec transl_normal_path = function
       then Lprim(Pgetglobal id, [], Location.none)
       else Lvar id
   | Pdot(p, s, pos) ->
-      Lprim(Pfield (pos, Fld_module s), [transl_normal_path p], Location.none)
+      Lprim(Pfield (pos, Fld_module {name = s}), [transl_normal_path p], Location.none)
   | Papply _ ->
       fatal_error "Lambda.transl_path"
 
