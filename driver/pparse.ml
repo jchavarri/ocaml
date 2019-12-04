@@ -188,7 +188,7 @@ let file_aux ppf ~tool_name inputfile (type a) parse_fun invariant_fun
   let ast =
     Profile.record_call "-ppx" (fun () ->
       apply_rewriters ~restore:false ~tool_name kind ast) in
-  if is_ast_file || !Clflags.all_ppx <> [] then invariant_fun ast;
+  if is_ast_file || !Clflags.all_ppx <> [] && not !Clflags.bs_only then invariant_fun ast;
   ast
 
 let file ppf ~tool_name inputfile parse_fun ast_kind =
