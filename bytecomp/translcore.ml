@@ -269,7 +269,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
 ]
 
 let gen_array_kind =
-  if Config.flat_float_array then Pgenarray else Paddrarray
+  if not !Clflags.bs_only && Config.flat_float_array then Pgenarray else Paddrarray
 
 let primitives_table = create_hashtable 57 [
   "%identity", Pidentity;
