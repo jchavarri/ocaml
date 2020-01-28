@@ -1169,7 +1169,7 @@ and lookup_module ~load ?loc lid env : Path.t =
           raise Recmodule
 #if true then                  
         | Mty_alias (_, Path.Pident id) ->   
-          if !Clflags.bs_only && not !Clflags.transparent_modules && Ident.persistent id then 
+          if !Config.bs_only && not !Clflags.transparent_modules && Ident.persistent id then 
             find_pers_struct (Ident.name id) |> ignore 
 #end            
         | _ -> ()
@@ -1785,7 +1785,7 @@ and check_value_name name loc =
   (* Note: we could also check here general validity of the
      identifier, to protect against bad identifiers forged by -pp or
      -ppx preprocessors. *)
-  if !Clflags.bs_only && name = "|." then raise (Error(Illegal_value_name(loc, name)))  
+  if !Config.bs_only && name = "|." then raise (Error(Illegal_value_name(loc, name)))  
   else if String.length name > 0 && (name.[0] = '#') then
     for i = 1 to String.length name - 1 do
       if name.[i] = '#' then

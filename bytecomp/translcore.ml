@@ -82,7 +82,7 @@ type specialized = {
 
 let arity2 name : Lambda.primitive = Lambda.Pccall (Primitive.simple ~name ~arity:2 ~alloc:true)
 let more_bs_primitives ls =        
-  if !Clflags.bs_only then 
+  if !Config.bs_only then 
       ("%bs_max",
     { gencomp = arity2 "caml_max" ;
       bytescomp = arity2 "caml_max"; (* FIXME bytescomp*)
@@ -154,7 +154,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
       {
         gencomp = Pccall(Primitive.simple ~name:"caml_equal" ~arity:2 ~alloc:true);
         intcomp = Pintcomp Ceq;
-        boolcomp = if not !Clflags.bs_only then Pintcomp Ceq
+        boolcomp = if not !Config.bs_only then Pintcomp Ceq
         else Pccall (Primitive.simple ~name:"caml_bool_equal" ~arity:2
                       ~alloc:false); 
         floatcomp = Pfloatcomp Ceq;
@@ -169,7 +169,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
   "%notequal",
       { gencomp = Pccall(Primitive.simple ~name:"caml_notequal" ~arity:2 ~alloc:true);
         intcomp = Pintcomp Cneq;
-        boolcomp = if not !Clflags.bs_only then Pintcomp Cneq
+        boolcomp = if not !Config.bs_only then Pintcomp Cneq
             else Pccall (Primitive.simple ~name:"caml_bool_notequal" ~arity:2
                   ~alloc:false) ;         
         floatcomp = Pfloatcomp Cneq;
@@ -184,7 +184,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
   "%lessthan",
       { gencomp = Pccall(Primitive.simple ~name:"caml_lessthan" ~arity:2 ~alloc:true);
         intcomp = Pintcomp Clt;
-        boolcomp = if not !Clflags.bs_only then Pintcomp Clt
+        boolcomp = if not !Config.bs_only then Pintcomp Clt
         else Pccall (Primitive.simple ~name:"caml_bool_lessthan" ~arity:2
                      ~alloc:false);
         floatcomp = Pfloatcomp Clt;
@@ -199,7 +199,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
   "%greaterthan",
       { gencomp = Pccall(Primitive.simple ~name:"caml_greaterthan" ~arity:2 ~alloc:true);
         intcomp = Pintcomp Cgt;
-        boolcomp = if not !Clflags.bs_only then Pintcomp Cgt
+        boolcomp = if not !Config.bs_only then Pintcomp Cgt
         else Pccall (Primitive.simple ~name:"caml_bool_greaterthan" ~arity:2
             ~alloc:false);
         floatcomp = Pfloatcomp Cgt;
@@ -214,7 +214,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
   "%lessequal",
       { gencomp = Pccall(Primitive.simple ~name:"caml_lessequal" ~arity:2 ~alloc:true);
         intcomp = Pintcomp Cle;
-        boolcomp = if not !Clflags.bs_only then Pintcomp Cle
+        boolcomp = if not !Config.bs_only then Pintcomp Cle
         else Pccall( Primitive.simple ~name:"caml_bool_lessequal" ~arity:2
                     ~alloc:false);
         floatcomp = Pfloatcomp Cle;
@@ -229,7 +229,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
   "%greaterequal",
       { gencomp = Pccall(Primitive.simple ~name:"caml_greaterequal" ~arity:2 ~alloc:true);
         intcomp = Pintcomp Cge;
-        boolcomp = if not !Clflags.bs_only then Pintcomp Cge
+        boolcomp = if not !Config.bs_only then Pintcomp Cge
         else Pccall (Primitive.simple ~name:"caml_bool_greaterequal" ~arity:2
                     ~alloc:false);
         floatcomp = Pfloatcomp Cge;
@@ -251,7 +251,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
       { gencomp = Pccall(Primitive.simple ~name:"caml_compare" ~arity:2 ~alloc:true);
        (* Not unboxed since the comparison is done directly on tagged int *)
         intcomp = Pccall(Primitive.simple ~name:"caml_int_compare" ~arity:2 ~alloc:false);
-        boolcomp = if not !Clflags.bs_only then
+        boolcomp = if not !Config.bs_only then
             Pccall(Primitive.simple ~name:"caml_int_compare" ~arity:2 ~alloc:false)
           else
             Pccall (Primitive.simple ~name: "caml_bool_compare"
@@ -269,7 +269,7 @@ let comparisons_table = Lazy.from_fun @@ fun _ ->
 ]
 
 let gen_array_kind =
-  if not !Clflags.bs_only && Config.flat_float_array then Pgenarray else Paddrarray
+  if not !Config.bs_only && Config.flat_float_array then Pgenarray else Paddrarray
 
 let primitives_table = create_hashtable 57 [
   "%identity", Pidentity;
@@ -732,7 +732,7 @@ let rec push_defaults loc bindings cases partial =
 let event_before exp lam = match lam with
 | Lstaticraise (_,_) -> lam
 | _ ->
-  if !Clflags.record_event_when_debug && !Clflags.debug && not !Clflags.bs_only
+  if !Clflags.record_event_when_debug && !Clflags.debug && not !Config.bs_only
   then Levent(lam, {lev_loc = exp.exp_loc;
                     lev_kind = Lev_before;
                     lev_repr = None;
@@ -740,7 +740,7 @@ let event_before exp lam = match lam with
   else lam
 
 let event_after exp lam =
-  if !Clflags.record_event_when_debug && !Clflags.debug && not !Clflags.bs_only
+  if !Clflags.record_event_when_debug && !Clflags.debug && not !Config.bs_only
   then Levent(lam, {lev_loc = exp.exp_loc;
                     lev_kind = Lev_after exp.exp_type;
                     lev_repr = None;
@@ -748,7 +748,7 @@ let event_after exp lam =
   else lam
 
 let event_function exp lam =
-  if !Clflags.record_event_when_debug && !Clflags.debug && not !Clflags.bs_only then
+  if !Clflags.record_event_when_debug && !Clflags.debug && not !Config.bs_only then
     let repr = Some (ref 0) in
     let (info, body) = lam repr in
     (info,
@@ -1059,7 +1059,7 @@ and transl_exp0 e =
       let kind = array_kind e in
       let ll = transl_list expr_list in
 #if true then       
-      if !Clflags.bs_only then 
+      if !Config.bs_only then 
          Lprim(Pmakearray (kind, Mutable), ll, e.exp_loc)
       else   
 #end
@@ -1162,7 +1162,7 @@ and transl_exp0 e =
   | Texp_letmodule(id, loc, modl, body) ->
       let defining_expr =
 #if true then        
-        if !Clflags.bs_only then !transl_module Tcoerce_none None modl
+        if !Config.bs_only then !transl_module Tcoerce_none None modl
         else
 #end        
         Levent (!transl_module Tcoerce_none None modl, {
@@ -1424,7 +1424,7 @@ and transl_record loc env fields repres opt_init_expr =
   (* Determine if there are "enough" fields (only relevant if this is a
      functional-style record update *)
   let no_init = match opt_init_expr with None -> true | _ -> false in
-  if no_init || size < (if !Clflags.bs_only then 20 else Config.max_young_wosize) 
+  if no_init || size < (if !Config.bs_only then 20 else Config.max_young_wosize) 
   (* TODO: More strategies
      3 + 2 * List.length lbl_expr_list >= size (density)
   *)
@@ -1465,7 +1465,7 @@ and transl_record loc env fields repres opt_init_expr =
         | Record_inlined {tag;name;num_nonconsts} -> Lconst(Const_block(tag, !Lambda.blk_record_inlined fields name num_nonconsts, cl))
         | Record_unboxed _ -> Lconst(match cl with [v] -> v | _ -> assert false)
         | Record_float ->
-            if !Clflags.bs_only then Lconst(Const_block(0, !Lambda.blk_record fields, cl))
+            if !Config.bs_only then Lconst(Const_block(0, !Lambda.blk_record fields, cl))
             else
             Lconst(Const_float_array(List.map extract_float cl))
         | Record_extension ->
@@ -1478,7 +1478,7 @@ and transl_record loc env fields repres opt_init_expr =
             Lprim(Pmakeblock(tag, !Lambda.blk_record_inlined fields name num_nonconsts, mut, Some shape), ll, loc)
         | Record_unboxed _ -> (match ll with [v] -> v | _ -> assert false)
         | Record_float ->
-            if !Clflags.bs_only then Lprim(Pmakeblock(0, !Lambda.blk_record fields, mut, Some shape), ll, loc)
+            if !Config.bs_only then Lprim(Pmakeblock(0, !Lambda.blk_record fields, mut, Some shape), ll, loc)
             else
             Lprim(Pmakearray (Pfloatarray, mut), ll, loc)
         | Record_extension ->

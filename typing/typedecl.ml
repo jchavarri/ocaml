@@ -218,7 +218,7 @@ let make_params env params =
 
 let transl_labels env closed lbls =
   assert (lbls <> []);
-  if !Clflags.bs_only then 
+  if !Config.bs_only then 
     match !Builtin_attributes.check_duplicated_labels lbls with 
     | None -> ()
     | Some {loc;txt=name} -> raise (Error(loc,Duplicate_label name))
@@ -454,7 +454,7 @@ let transl_declaration env sdecl id =
             make_constructor env (Path.Pident id) params
                              scstr.pcd_args scstr.pcd_res
           in
-          if (not !Clflags.bs_only && Config.flat_float_array) && unbox then begin
+          if (not !Config.bs_only && Config.flat_float_array) && unbox then begin
             (* Cannot unbox a type when the argument can be both float and
                non-float because it interferes with the dynamic float array
                optimization. This can only happen when the type is a GADT
@@ -499,7 +499,7 @@ let transl_declaration env sdecl id =
           let lbls, lbls' = transl_labels env true lbls in
           let rep =
             if unbox then Record_unboxed false
-            else if !Clflags.bs_only then Record_regular
+            else if !Config.bs_only then Record_regular
             else if List.for_all (fun l -> is_float env l.Types.ld_type) lbls'
             then Record_float
             else Record_regular
@@ -1760,7 +1760,7 @@ let transl_value_decl env loc valdecl =
         | Native_repr_attr_absent -> None
       in
       let native_repr_args, native_repr_res =
-        if !Clflags.bs_only then          
+        if !Config.bs_only then          
           let rec scann (attrs : Parsetree.attributes)  = 
             match attrs with 
             | ({txt = "internal.arity";_}, 

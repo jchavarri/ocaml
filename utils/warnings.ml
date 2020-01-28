@@ -571,7 +571,7 @@ let report w =
              }
 ;;
 
-#if undefined BS_NO_COMPILER_PATCH then
+#if true then
 let super_report message w =
   match is_active w with
   | false -> `Inactive

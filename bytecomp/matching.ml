@@ -1334,7 +1334,7 @@ let make_constr_matching p def ctx = function
           (arg, Alias) :: argl
         else match cstr.cstr_tag with
         | Cstr_block _ when
-            !Clflags.bs_only &&
+            !Config.bs_only &&
             Datarepr.constructor_has_optional_shape cstr
           ->
             begin
@@ -1561,7 +1561,7 @@ let inline_lazy_force_switch arg loc =
                sw_names = None }, loc ))))
 
 let inline_lazy_force arg loc =
-  if !Clflags.bs_only then
+  if !Config.bs_only then
     Lapply {ap_should_be_tailcall=false; ap_func = Lazy.force code_force; ap_inlined = Default_inline; ap_specialised = Default_specialise; ap_args = [arg]; ap_loc = loc}
   else
   if !Clflags.native_code then
@@ -2393,7 +2393,7 @@ let combine_constructor sw_names loc arg ex_pat cstr partial ctx def
            (* Typically, match on lists, will avoid isint primitive in that
               case *)
               let arg = 
-                if !Clflags.bs_only && Datarepr.constructor_has_optional_shape cstr then
+                if !Config.bs_only && Datarepr.constructor_has_optional_shape cstr then
                   Lprim(is_none_bs_primitve , [arg], loc)
                 else arg
               in 
@@ -2791,7 +2791,7 @@ and do_compile_matching repr partial ctx arg pmh = match pmh with
         (combine_constant names pat.pat_loc arg cst partial)
         ctx pm
   | Tpat_construct (_, cstr, _) ->
-      let sw_names = if !Clflags.bs_only
+      let sw_names = if !Config.bs_only
         then !names_from_construct_pattern pat
         else None in  
       compile_test
@@ -3105,7 +3105,7 @@ let for_let loc param pat body =
   | _ ->
 #if true then   
       (* Turn off such optimization to reduce diff in the beginning*)
-      if !Clflags.bs_only then simple_for_let loc param pat body 
+      if !Config.bs_only then simple_for_let loc param pat body 
       else
 #end      
       let opt = ref false in

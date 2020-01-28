@@ -53,7 +53,7 @@ module Options = Main_args.Make_bytecomp_options (struct
   let _keep_docs = set keep_docs
   let _no_keep_docs = unset keep_docs
 #if true then 
-  let _bs_d_only = set bs_only
+  let _bs_d_only = set Config.bs_only
 #end
   let _keep_locs = set keep_locs
   let _no_keep_locs = unset keep_locs
@@ -153,7 +153,7 @@ let main () =
       end
     end;
 #if true then     
-    if not !Clflags.bs_only then (
+    if not !Config.bs_only then (
 #end      
     readenv ppf Before_link;
     if
