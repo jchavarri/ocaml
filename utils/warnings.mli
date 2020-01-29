@@ -82,12 +82,15 @@ type t =
   | Unused_module of string                 (* 60 *)
   | Unboxable_type_in_prim_decl of string   (* 61 *)
   | Constraint_on_gadt                      (* 62 *)
-#if undefined BS_NO_COMPILER_PATCH then
+#if true then
   | Bs_unused_attribute of string           (* 101 *)
   | Bs_polymorphic_comparison               (* 102 *)
   | Bs_ffi_warning of string                (* 103 *)
   | Bs_derive_warning of string             (* 104 *)
   | Bs_fragile_external of string           (* 105 *)
+  | Bs_unimplemented_primitive of string    (* 106 *)
+  | Bs_integer_literal_overflow              (* 107 *)
+  | Bs_uninterpreted_delimiters of string   (* 108 *)
 #end        
 ;;
 

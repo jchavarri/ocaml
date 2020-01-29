@@ -90,12 +90,15 @@ type t =
   | Unboxable_type_in_prim_decl of string   (* 61 *)
   | Constraint_on_gadt                      (* 62 *)
     
-#if undefined BS_NO_COMPILER_PATCH then    
+#if true then    
   | Bs_unused_attribute of string           (* 101 *)
   | Bs_polymorphic_comparison               (* 102 *)
   | Bs_ffi_warning of string                (* 103 *)
   | Bs_derive_warning of string             (* 104 *)
   | Bs_fragile_external of string           (* 105 *)
+  | Bs_unimplemented_primitive of string    (* 106 *)
+  | Bs_integer_literal_overflow              (* 107 *)
+  | Bs_uninterpreted_delimiters of string   (* 108 *)
 #end  
 ;;
 
@@ -169,16 +172,19 @@ let number = function
   | Unboxable_type_in_prim_decl _ -> 61
   | Constraint_on_gadt -> 62
 
-#if undefined BS_NO_COMPILER_PATCH then    
+#if true then    
   | Bs_unused_attribute _ -> 101
   | Bs_polymorphic_comparison -> 102
   | Bs_ffi_warning _ -> 103
   | Bs_derive_warning _ -> 104
   | Bs_fragile_external _ -> 105
+  | Bs_unimplemented_primitive _ -> 106
+  | Bs_integer_literal_overflow -> 107
+  | Bs_uninterpreted_delimiters _ -> 108
 #end  
 ;;
 
-let last_warning_number = 105
+let last_warning_number = 108
 let letter_all = 
   let rec loop i = if i = 0 then [] else i :: loop (i - 1) in
   loop last_warning_number
@@ -544,6 +550,12 @@ let message = function
       "BuckleScript bs.deriving warning: " ^ s 
   | Bs_fragile_external s ->     
       "BuckleScript warning: " ^ s ^" : the external name is inferred from val name is unsafe from refactoring when changing value name"
+  | Bs_unimplemented_primitive s -> 
+      "BuckleScript warning: Unimplemented primitive used:" ^ s
+  | Bs_integer_literal_overflow -> 
+      "BuckleScript warning: Integer literal exceeds the range of representable integers of type int"
+  | Bs_uninterpreted_delimiters s -> 
+      "BuckleScript warning: Uninterpreted delimiters" ^ s  
 #end      
 ;;
 

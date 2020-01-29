@@ -341,8 +341,7 @@ let print_warning loc ppf w =
 
 let formatter_for_warnings = ref err_formatter;;
 let prerr_warning loc w = 
-    if not !Clflags.bs_quiet then
-      print_warning loc !formatter_for_warnings w;;
+    print_warning loc !formatter_for_warnings w;;
 
 let echo_eof () =
   print_newline ();
