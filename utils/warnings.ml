@@ -539,7 +539,7 @@ let message = function
   | Constraint_on_gadt ->
       "Type constraints do not apply to GADT cases of variant types."
 
-#if undefined BS_NO_COMPILER_PATCH then
+#if true then
   | Bs_unused_attribute s ->
       "Unused BuckleScript attribute: " ^ s
   | Bs_polymorphic_comparison ->
@@ -685,11 +685,15 @@ let descriptions =
    61, "Unboxable type in primitive declaration";
    62, "Type constraint on GADT type declaration";
     
-#if undefined BS_NO_COMPILER_PATCH then    
-   101, "Unused bs attributes";
-   102, "polymorphic comparison introduced (maybe unsafe)";
-   103, "BuckleScript FFI warning: " ;
-   104, "BuckleScript bs.deriving warning: "
+#if true then    
+   101, "BuckleScript warning: Unused bs attributes";
+   102, "BuckleScript warning: polymorphic comparison introduced (maybe unsafe)";
+   103, "BuckleScript warning: about fragile FFI definitions" ;
+   104, "BuckleScript warning: bs.deriving warning with customized message ";
+   105, "BuckleScript warning: the external name is inferred from val name is unsafe from refactoring when changing value name";
+   106, "BuckleScript warning: Unimplemented primitive used:";
+   107, "BuckleScript warning: Integer literal exceeds the range of representable integers of type int";
+   108, "BuckleScript warning: Uninterpreted delimiters (for unicode)"  
 #end   
   ]
 ;;
