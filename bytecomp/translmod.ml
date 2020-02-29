@@ -596,7 +596,7 @@ and transl_structure loc fields cc rootpath final_env = function
       | Tstr_module mb ->
           let id = mb.mb_id in
           let body, size =
-            transl_structure loc (id :: fields) cc rootpath final_env rem
+            transl_structure loc ( if !Typemod.should_hide mb then fields else id::fields) cc rootpath final_env rem
           in
           let module_body =
             transl_module Tcoerce_none (field_path rootpath id) mb.mb_expr
@@ -766,7 +766,8 @@ let rec defined_idents = function
       List.map (fun ext -> ext.ext_id) tyext.tyext_constructors
       @ defined_idents rem
     | Tstr_exception ext -> ext.ext_id :: defined_idents rem
-    | Tstr_module mb -> mb.mb_id :: defined_idents rem
+    | Tstr_module mb -> 
+      if !Typemod.should_hide mb then defined_idents rem else mb.mb_id :: defined_idents rem
     | Tstr_recmodule decls ->
       List.map (fun mb -> mb.mb_id) decls @ defined_idents rem
     | Tstr_modtype _ -> defined_idents rem
