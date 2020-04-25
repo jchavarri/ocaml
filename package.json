@@ -4,11 +4,50 @@
   "description": "BuckleScript's OCaml Compiler as an npm Package",
   "esy": {
     "build": [
-      "./configure -no-cfi -prefix $cur__install",
-      "make -j world.opt"
-    ],
-    "install": [
-      "make install"
+      "./esy-configure -no-cfi -prefix #{self.install}",
+      "./esy-build",
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'utils'}",
+        "#{self.install / 'utils'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'parsing'}",
+        "#{self.install / 'parsing'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'typing'}",
+        "#{self.install / 'typing'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'bytecomp'}",
+        "#{self.install / 'bytecomp'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'driver'}",
+        "#{self.install / 'driver'}"
+      ],
+      [
+        "cp",
+        "-r",
+        "-f",
+        "#{self.root / 'tools'}",
+        "#{self.install / 'tools'}"
+      ]
     ],
     "buildsInSource": true,
     "exportedEnv": {
